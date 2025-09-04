@@ -13,6 +13,8 @@ const App: React.FC = () => {
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [recordingStartTime, setRecordingStartTime] = useState<number | null>(null);
+  const [recordingEndTime, setRecordingEndTime] = useState<number | null>(null);
 
   const {
     isListening,
@@ -55,10 +57,12 @@ const App: React.FC = () => {
   
   const handleStart = () => {
     handleReset();
+    setRecordingStartTime(Date.now());
     startListening();
   };
 
   const handleStop = () => {
+    setRecordingEndTime(Date.now());
     stopListening();
   };
   
@@ -69,6 +73,8 @@ const App: React.FC = () => {
       setAnalysis(null);
       setError(null);
       setIsLoading(false);
+      setRecordingStartTime(null);
+      setRecordingEndTime(null);
   }, [stopListening, resetTranscript]);
 
   const handleAnalyze = async () => {
@@ -83,8 +89,16 @@ const App: React.FC = () => {
 
     const fullTranscript = conversation.map(turn => turn.text).join(' ');
     
+    // Calculate duration from recording start/end times, fallback to conversation timestamps
+    let duration = 0;
+    if (recordingStartTime && recordingEndTime) {
+      duration = (recordingEndTime - recordingStartTime) / 1000;
+    } else if (conversation.length > 0) {
+      duration = (conversation[conversation.length - 1].timestamp - conversation[0].timestamp) / 1000;
+    }
+    
     try {
-      const result = await analyzeConversation(fullTranscript, conversation.length > 0 ? (conversation[conversation.length - 1].timestamp - conversation[0].timestamp) / 1000 : 0);
+      const result = await analyzeConversation(fullTranscript, duration);
       setAnalysis(result);
     } catch (e) {
       console.error(e);
