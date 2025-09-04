@@ -1,0 +1,7 @@
+{
+  "name": "AI Conversation Coach",
+  "description": "This app records conversations, transcribes them in real-time, and provides instant insights using AI analysis to help you improve your communication skills.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
