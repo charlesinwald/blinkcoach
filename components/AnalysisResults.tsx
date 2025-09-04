@@ -20,9 +20,11 @@ const sentimentToValue = {
 }
 
 const AnalysisCard: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
-  <div className="bg-slate-800/50 p-6 rounded-xl border border-slate-700 shadow-lg">
-    <h3 className="text-xl font-bold text-teal-400 mb-4">{title}</h3>
-    {children}
+  <div className="bg-slate-800/50 p-6 rounded-xl border border-slate-700 shadow-lg relative block w-full">
+    <h3 className="text-xl font-bold text-teal-400 mb-4 block w-full">{title}</h3>
+    <div className="block w-full">
+      {children}
+    </div>
   </div>
 );
 
@@ -69,7 +71,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analysis }) => {
 
 
   return (
-    <div className="mt-8 space-y-6 animate-fade-in">
+    <div className="mt-8 space-y-6 clear-both overflow-hidden">
       <h2 className="text-3xl font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-blue-500 mb-6">
         Analysis Report
       </h2>
@@ -92,20 +94,41 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analysis }) => {
               <div className="text-center">
                   <p className="text-6xl font-bold text-teal-400">{speakingPace.wpm}</p>
                   <p className="text-slate-400">Words Per Minute</p>
-                  <p className="mt-4 text-lg font-semibold text-white px-4 py-2 bg-teal-600/50 rounded-full inline-block">{speakingPace.assessment}</p>
+                  <div className="mt-4">
+                      {speakingPace.wpm > 0 ? (
+                          <p className="text-lg font-semibold text-white px-4 py-2 bg-teal-600/50 rounded-full inline-block">{speakingPace.assessment}</p>
+                      ) : (
+                          <div className="text-sm text-slate-400 max-w-md mx-auto">
+                              <p className="mb-2 font-medium text-slate-300">Assessment unavailable</p>
+                              <p className="leading-relaxed">The calculated speaking pace of 0 words per minute indicates that either no discernible speech was detected within the recorded duration, or there was an issue with the recording or calculation. No actual speaking pace can be assessed from this data.</p>
+                          </div>
+                      )}
+                  </div>
               </div>
           </AnalysisCard>
       </div>
 
       <AnalysisCard title="Actionable Insights">
-        <ul className="space-y-3">
-          {actionableInsights.map((insight, index) => (
-            <li key={index} className="flex items-start">
-              <svg className="w-6 h-6 text-teal-400 mr-3 flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-              <span className="text-slate-300">{insight}</span>
-            </li>
-          ))}
-        </ul>
+        <div className="space-y-3">
+          {actionableInsights.length > 0 ? (
+            actionableInsights.map((insight, index) => (
+              <div key={index} className="bg-slate-700/30 rounded-lg border border-slate-600/30 p-4">
+                <div className="flex items-start gap-3">
+                  <svg className="w-5 h-5 text-teal-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-slate-300 leading-relaxed text-sm break-words">
+                      {insight.replace(/\\n/g, ' ').replace(/\n/g, ' ').trim()}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))
+          ) : (
+            <p className="text-slate-400 text-sm italic">No actionable insights available.</p>
+          )}
+        </div>
       </AnalysisCard>
 
       <AnalysisCard title="Sentiment Flow">
